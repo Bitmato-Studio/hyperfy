@@ -413,6 +413,13 @@ function AppPaneMain({ world, app, blueprint, canEdit }) {
               <FileCode2Icon size={16} />
               <span>Code</span>
             </div>
+            <div
+              className='amain-btns-btn'
+              onClick={() => copyAppId() }
+            >
+              <ClipboardCopy size={12} />
+              <span>Copy Id</span>
+            </div>
           </div>
           <div className='amain-btns2'>
             <div
@@ -436,13 +443,6 @@ function AppPaneMain({ world, app, blueprint, canEdit }) {
             >
               <SparkleIcon size={12} />
               <span>Unique</span>
-            </div>
-            <div
-              className={cls('amain-btns2-btn purple', { active: true })}
-              onClick={() => copyAppId() }
-            >
-              <ClipboardCopy size={12} />
-              <span>Copy Id</span>
             </div>
           </div>
           {app.fields.length > 0 && <div className='amain-line mt' />}
