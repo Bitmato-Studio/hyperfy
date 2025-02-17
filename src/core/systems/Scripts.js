@@ -5,6 +5,7 @@ import { DEG2RAD, RAD2DEG } from '../extras/general'
 import { clamp, num, uuid } from '../utils'
 import { LerpVector3 } from '../extras/LerpVector3'
 import { LerpQuaternion } from '../extras/LerpQuaternion'
+import { Physics } from './Physics'
 
 /**
  * Script System
@@ -40,6 +41,7 @@ export class Scripts extends System {
       Matrix4: THREE.Matrix4,
       LerpVector3,
       LerpQuaternion,
+      GameWorld: world,
       // Material: Material,
       // Curve: Curve,
       // Gradient: Gradient,

@@ -62,7 +62,6 @@ export async function updateUsersName(world, server, socket, name, arg2) {
 export async function setWorldSpawn(world, server, socket, action, arg2) {
 
     const player = socket.player;
-    const user = socket.player;
 
     if (action === 'set') {
         server.spawn = { position: player.data.position.slice(), quaternion: player.data.quaternion.slice() }
