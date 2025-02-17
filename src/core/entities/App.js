@@ -1,4 +1,4 @@
-import { isArray, isFunction, isString } from 'lodash-es'
+import { isArray, isFunction, isString, cloneDeep } from 'lodash-es'
 import moment from 'moment'
 
 import { Entity } from './Entity'
@@ -7,6 +7,7 @@ import { LerpVector3 } from '../extras/LerpVector3'
 import { LerpQuaternion } from '../extras/LerpQuaternion'
 import { ControlPriorities } from '../extras/ControlPriorities'
 import { getRef } from '../nodes/Node'
+import { uuid } from '../utils'
 
 const hotEventNames = ['fixedUpdate', 'update', 'lateUpdate']
 const internalEvents = ['fixedUpdate', 'updated', 'lateUpdate', 'enter', 'leave', 'chat']
@@ -460,6 +461,13 @@ export class App extends Entity {
       create(name, data) {
         const node = entity.createNode(name, data)
         return node.getProxy()
+      },
+      createClone() {
+        const data = cloneDeep(entity.data);
+        data.id = uuid();
+
+        entity.world.entities.add(data, true);
+        return data.id;
       },
       control(options) {
         // TODO: only allow on user interaction
