@@ -874,6 +874,7 @@ export class PlayerLocal extends Entity {
     this.control.camera.quaternion.copy(this.cam.quaternion)
   }
 
+
   setEffect(effect, cancel) {
     if (this.effect === effect) return
     if (this.effect) {
