@@ -2,7 +2,7 @@ import { System } from './System'
 
 import * as THREE from '../extras/three'
 import {Water} from "three/addons/objects/Water.js"
-import { CSS3DRenderer, CSS3DObject } from 'https://orvillechomer.github.io/miscJsFiles/THREEJS/r120/jsm/renderers/CSS3DRenderer.js';
+import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
 
 
 import { DEG2RAD, RAD2DEG } from '../extras/general'
