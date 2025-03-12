@@ -93,6 +93,7 @@ export class PlayerRemote extends Entity {
 
   applyAvatar() {
     const avatarUrl = this.data.sessionAvatar || this.data.avatar || 'asset://avatar.vrm'
+
     if (this.avatarUrl === avatarUrl) return
     this.world.loader.load('avatar', avatarUrl).then(src => {
       if (this.avatar) this.avatar.deactivate()
@@ -150,6 +151,7 @@ export class PlayerRemote extends Entity {
 
   modify(data) {
     let avatarChanged
+    let forceChange
     if (data.hasOwnProperty('t')) {
       this.teleport++
     }
