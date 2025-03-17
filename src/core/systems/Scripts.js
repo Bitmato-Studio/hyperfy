@@ -3,8 +3,6 @@ import { System } from './System'
 import * as THREE from '../extras/three'
 import {Water} from "three/addons/objects/Water.js"
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
-
-
 import { DEG2RAD, RAD2DEG } from '../extras/general'
 import { clamp, num, uuid } from '../utils'
 import { LerpVector3 } from '../extras/LerpVector3'
@@ -34,6 +32,7 @@ export class Scripts extends System {
       URL: {
         createObjectURL: blob => URL.createObjectURL(blob),
       },
+      Math,
       eval: undefined,
       harden: undefined,
       lockdown: undefined,
@@ -46,7 +45,7 @@ export class Scripts extends System {
       Vector3: THREE.Vector3,
       Euler: THREE.Euler,
       Matrix4: THREE.Matrix4,
-
+      
       // Exposing really cool things :)
       THREE,
       Water,
@@ -55,6 +54,7 @@ export class Scripts extends System {
       gThis: globalThis,
 
       LerpVector3,
+      window: typeof window !== 'undefined' ? window : globalThis,
       LerpQuaternion,
       GameWorld: world,
       // Material: Material,
@@ -92,7 +92,7 @@ function wrapRawCode(code) {
   return `
   (function() {
     const shared = {}
-    return (world, app, fetch, props) => {
+    return (world, app, fetch, props, setTimeout) => {
       const config = props // deprecated
       ${code}
     }
