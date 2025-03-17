@@ -1,5 +1,5 @@
 import * as THREE from '../extras/three'
-import { isBoolean, isNumber, isString } from 'lodash-es'
+import { every, isArray, isBoolean, isNumber, isString } from 'lodash-es'
 import Yoga from 'yoga-layout'
 
 import { Node } from './Node'
@@ -259,13 +259,21 @@ export class UI extends Node {
     this.yogaNode.setWidth(this._width * this._res)
     this.yogaNode.setHeight(this._height * this._res)
     this.yogaNode.setBorder(Yoga.EDGE_ALL, this._borderWidth * this._res)
-    this.yogaNode.setPadding(Yoga.EDGE_ALL, this._padding * this._res)
+    if (isArray(this._padding)) {
+      const [top, right, bottom, left] = this._padding
+      this.yogaNode.setPadding(Yoga.EDGE_TOP, top * this._res)
+      this.yogaNode.setPadding(Yoga.EDGE_RIGHT, right * this._res)
+      this.yogaNode.setPadding(Yoga.EDGE_BOTTOM, bottom * this._res)
+      this.yogaNode.setPadding(Yoga.EDGE_LEFT, left * this._res)
+    } else {
+      this.yogaNode.setPadding(Yoga.EDGE_ALL, this._padding * this._res)
+    }
     this.yogaNode.setFlexDirection(FlexDirection[this._flexDirection])
     this.yogaNode.setJustifyContent(JustifyContent[this._justifyContent])
     this.yogaNode.setAlignItems(AlignItems[this._alignItems])
     this.yogaNode.setAlignContent(AlignContent[this._alignContent])
     this.yogaNode.setFlexWrap(FlexWrap[this._flexWrap])
-    this.yogaNode.setGap(Yoga.GUTTER_ALL, this._gap)
+    this.yogaNode.setGap(Yoga.GUTTER_ALL, this._gap * this._res)
     this.build()
     this.needsRedraw = true
     this.setDirty()
@@ -648,12 +656,20 @@ export class UI extends Node {
   }
 
   set padding(value = defaults.padding) {
-    if (!isNumber(value)) {
-      throw new Error('[ui] padding not a number')
+    if (!isEdge(value)) {
+      throw new Error(`[ui] padding not a number or array of numbers`)
     }
     if (this._padding === value) return
     this._padding = value
-    this.yogaNode?.setPadding(Yoga.EDGE_ALL, this._padding * this._res)
+    if (isArray(this._padding)) {
+      const [top, right, bottom, left] = this._padding
+      this.yogaNode?.setPadding(Yoga.EDGE_TOP, top * this._res)
+      this.yogaNode?.setPadding(Yoga.EDGE_RIGHT, right * this._res)
+      this.yogaNode?.setPadding(Yoga.EDGE_BOTTOM, bottom * this._res)
+      this.yogaNode?.setPadding(Yoga.EDGE_LEFT, left * this._res)
+    } else {
+      this.yogaNode?.setPadding(Yoga.EDGE_ALL, this._padding * this._res)
+    }
     this.redraw()
   }
 
@@ -737,7 +753,7 @@ export class UI extends Node {
     }
     if (this._gap === value) return
     this._gap = value
-    this.yogaNode?.setGap(Yoga.GUTTER_ALL, this._gap)
+    this.yogaNode?.setGap(Yoga.GUTTER_ALL, this._gap * this._res)
     this.redraw()
   }
 
@@ -1022,4 +1038,14 @@ function getPivotOffset(pivot, width, height) {
   //   originalTopLeft + pivotTranslation
   // = (-halfW + tx, +halfH + ty)
   return new THREE.Vector2(-halfW + tx, +halfH + ty)
+}
+
+function isEdge(value) {
+  if (isNumber(value)) {
+    return true
+  }
+  if (isArray(value)) {
+    return value.length === 4 && every(value, n => isNumber(n))
+  }
+  return false
 }

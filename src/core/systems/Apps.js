@@ -8,7 +8,7 @@ import { Layers } from '../extras/Layers'
 import { ControlPriorities } from '../extras/ControlPriorities'
 import { warn } from '../extras/warn'
 
-const internalEvents = ['fixedUpdate', 'updated', 'lateUpdate', 'enter', 'leave', 'chat', 'health']
+const internalEvents = ['fixedUpdate', 'updated', 'lateUpdate', 'destroy', 'enter', 'leave', 'chat', 'health']
 
 /**
  * Apps System
@@ -20,23 +20,28 @@ const internalEvents = ['fixedUpdate', 'updated', 'lateUpdate', 'enter', 'leave'
 export class Apps extends System {
   constructor(world) {
     super(world)
-    this.initWorldApi()
-    this.initAppApi()
+    this.initWorldHooks()
+    this.initAppHooks()
   }
 
-  initWorldApi() {
+  initWorldHooks() {
     const self = this
     const world = this.world
-    this.worldApi = {
-      getNetworkId(entity) {
+    this.worldGetters = {
+      networkId(entity) {
         return world.network.id
       },
-      getIsServer(entity) {
+      isServer(entity) {
         return world.network.isServer
       },
-      getIsClient(entity) {
+      isClient(entity) {
         return world.network.isClient
       },
+    }
+    this.worldSetters = {
+      // ...
+    }
+    this.worldMethods = {
       add(entity, pNode) {
         const node = getRef(pNode)
         if (!node) return
@@ -153,31 +158,35 @@ export class Apps extends System {
     }
   }
 
-  initAppApi() {
+  initAppHooks() {
     const world = this.world
-    this.appApi = {
-      getInstanceId(entity) {
+    this.appGetters = {
+      instanceId(entity) {
         return entity.data.id
       },
-      getVersion(entity) {
+      version(entity) {
         return entity.blueprint.version
       },
-      getModelUrl(entity) {
+      modelUrl(entity) {
         return entity.blueprint.model
       },
-      getState(entity) {
+      state(entity) {
         return entity.data.state
       },
-      setState(entity, value) {
-        entity.data.state = value
-      },
-      getProps(entity) {
+      props(entity) {
         return entity.blueprint.props
       },
-      getConfig(entity) {
+      config(entity) {
         // deprecated. will be removed
         return entity.blueprint.props
       },
+    }
+    this.appSetters = {
+      state(entity, value) {
+        entity.data.state = value
+      },
+    }
+    this.appMethods = {
       on(entity, name, callback) {
         entity.on(name, callback)
       },
@@ -191,6 +200,18 @@ export class Apps extends System {
         // NOTE: on the client ignoreSocketId is a no-op because it can only send events to the server
         const event = [entity.data.id, entity.blueprint.version, name, data]
         world.network.send('entityEvent', event, ignoreSocketId)
+      },
+      sendTo(entity, playerId, name, data) {
+        if (internalEvents.includes(name)) {
+          return console.error(`apps cannot send internal events (${name})`)
+        }
+        if (!world.network.isServer) {
+          throw new Error('sendTo can only be called on the server')
+        }
+        const player = world.entities.get(playerId)
+        if (!player) return
+        const event = [entity.data.id, entity.blueprint.version, name, data]
+        world.network.sendTo(playerId, 'entityEvent', event)
       },
       emit(entity, name, data) {
         if (internalEvents.includes(name)) {
@@ -239,18 +260,37 @@ export class Apps extends System {
     }
   }
 
-  augment({ global, world, app }) {
-    // todo: globals
+  inject({ world, app }) {
     if (world) {
-      this.worldApi = {
-        ...this.worldApi,
-        ...world,
+      for (const key in world) {
+        const value = world[key]
+        const isFunction = typeof value === 'function'
+        if (isFunction) {
+          this.worldMethods[key] = value
+          continue
+        }
+        if (value.get) {
+          this.worldGetters[key] = value.get
+        }
+        if (value.set) {
+          this.worldSetters[key] = value.set
+        }
       }
     }
     if (app) {
-      this.appApi = {
-        ...this.appApi,
-        ...app,
+      for (const key in app) {
+        const value = app[key]
+        const isFunction = typeof value === 'function'
+        if (isFunction) {
+          this.appMethods[key] = value
+          continue
+        }
+        if (value.get) {
+          this.appGetters[key] = value.get
+        }
+        if (value.set) {
+          this.appSetters[key] = value.set
+        }
       }
     }
   }

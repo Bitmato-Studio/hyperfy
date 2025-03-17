@@ -21,6 +21,7 @@ export class Scripts extends System {
     this.compartment = new Compartment({
       console: {
         log: (...args) => console.log(...args),
+        warn: (...args) => console.warn(...args),
         error: (...args) => console.error(...args),
         time: (...args) => console.time(...args),
         timeEnd: (...args) => console.timeEnd(...args),
@@ -31,6 +32,7 @@ export class Scripts extends System {
       URL: {
         createObjectURL: blob => URL.createObjectURL(blob),
       },
+      Math,
       eval: undefined,
       harden: undefined,
       lockdown: undefined,
@@ -82,7 +84,7 @@ function wrapRawCode(code) {
   return `
   (function() {
     const shared = {}
-    return (world, app, fetch, props) => {
+    return (world, app, fetch, props, setTimeout) => {
       const config = props // deprecated
       ${code}
     }

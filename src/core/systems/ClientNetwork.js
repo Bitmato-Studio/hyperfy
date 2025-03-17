@@ -150,6 +150,7 @@ export class ClientNetwork extends System {
 
   onEntityModified = data => {
     const entity = this.world.entities.get(data.id)
+    if (!entity) return console.error('onEntityModified: no entity found', data)
     entity.modify(data)
   }
 
@@ -173,6 +174,10 @@ export class ClientNetwork extends System {
 
   onPlayerSessionAvatar = data => {
     this.world.entities.player?.setSessionAvatar(data.avatar)
+  }
+
+  onKick = code => {
+    this.world.emit('kick', code)
   }
 
   onClose = code => {
