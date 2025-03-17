@@ -1,6 +1,7 @@
 import { System } from './System'
 
 import * as THREE from '../extras/three'
+import {Water} from "three/addons/objects/Water.js"
 import { DEG2RAD, RAD2DEG } from '../extras/general'
 import { clamp, num, uuid } from '../utils'
 import { LerpVector3 } from '../extras/LerpVector3'
@@ -37,20 +38,30 @@ export class Scripts extends System {
       lockdown: undefined,
       num,
       clamp,
+      structuredClone,
       // Layers,
       Object3D: THREE.Object3D,
       Quaternion: THREE.Quaternion,
       Vector3: THREE.Vector3,
       Euler: THREE.Euler,
       Matrix4: THREE.Matrix4,
+      THREE,
+      Water,
       LerpVector3,
+      window: typeof window !== 'undefined' ? window : globalThis,
       LerpQuaternion,
+      GameWorld: world,
       // Material: Material,
       // Curve: Curve,
       // Gradient: Gradient,
       DEG2RAD,
       RAD2DEG,
       uuid,
+      WebAssembly: {
+        instantiate: WebAssembly.instantiate,
+        Memory: WebAssembly.Memory,
+        Table: WebAssembly.Table,
+      },
       // pause: () => this.world.pause(),
     })
   }
