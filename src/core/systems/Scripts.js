@@ -2,6 +2,7 @@ import { System } from './System'
 
 import * as THREE from '../extras/three'
 import {Water} from "three/addons/objects/Water.js"
+import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
 import { DEG2RAD, RAD2DEG } from '../extras/general'
 import { clamp, num, uuid } from '../utils'
 import { LerpVector3 } from '../extras/LerpVector3'
@@ -21,7 +22,6 @@ export class Scripts extends System {
     this.compartment = new Compartment({
       console: {
         log: (...args) => console.log(...args),
-        warn: (...args) => console.warn(...args),
         error: (...args) => console.error(...args),
         time: (...args) => console.time(...args),
         timeEnd: (...args) => console.timeEnd(...args),
@@ -45,8 +45,14 @@ export class Scripts extends System {
       Vector3: THREE.Vector3,
       Euler: THREE.Euler,
       Matrix4: THREE.Matrix4,
+      
+      // Exposing really cool things :)
       THREE,
       Water,
+      CSS3DRenderer,
+      CSS3DObject,
+      gThis: globalThis,
+
       LerpVector3,
       window: typeof window !== 'undefined' ? window : globalThis,
       LerpQuaternion,
@@ -57,6 +63,8 @@ export class Scripts extends System {
       DEG2RAD,
       RAD2DEG,
       uuid,
+
+      // Allow for wasm
       WebAssembly: {
         instantiate: WebAssembly.instantiate,
         Memory: WebAssembly.Memory,
